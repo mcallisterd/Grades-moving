@@ -79,10 +79,62 @@ function go(){
       students.push(newStudent);
     });
     makeChart(students);
+    makeDivs(students);
   },
   function(err){
     console.log(err);
   });
+}
+
+function makeDivs(students){
+  var dictionary = {
+"bookworm-penguin-300px.png": "Bookworm",
+"crafty-penguin-300px.png":"Crafty",
+"cyclist-penguin-300px.png":"Cyclist",
+"drunken-penguin-300px.png":"Drunken",
+"Easter-penguin-300px.png":"Easter",
+"ebook-penguin-300px.png":"Ebook",
+"Farmer-penguin-300px.png":"Farmer",
+"gentleman-penguin-300px.png":"Gentleman",
+"judo-penguin-300px.png":"Judo",
+"moana-penguin-300px.png":"Moana",
+"painter-penguin-300px.png":"Painter",
+"penguin-grill-300px.png":"Grill",
+"pharaoh-penguin-300px.png":"Pharaoh",
+"pilot-penguin-300px.png":"Pilot",
+"Pinga_corr-300px.png":"Pinga corr",
+"pixie-penguin-300px.png":"Pixie",
+"sailor-penguin-300px.png":"Sailor",
+"santa-penguin-300px.png":"Santa",
+"tauch-pinguin-ocal-300px.png":"Tauch",
+"tux-300px.png":"Tux",
+"valentine-penguin-ocal-300px.png":"Valentine ocal",
+"valentine-penguin.png":"Valentine",
+"wizard-penguin-300px.png":"Wizard"
+}
+
+  d3.select("body")
+    .selectAll("div")
+    .data(students)
+    .enter()
+    .append("div")
+    .on("click",function(d,i){
+      update(i);
+    })
+    .style("float","right")
+    .attr("class",function(d,i){
+      return i%6;
+    })
+    .style("clear","right")
+    .text(function(d){
+      return dictionary[d.picture]+" Penguin";
+    })
+    .append("img")
+    .attr("src",function(d){
+      return d.picture;
+    })
+    .attr("width","50px")
+    .attr("height","50px");
 }
 
 function processGrades(student){
@@ -122,8 +174,6 @@ function classAv(students){
 }
 
 function makeChart(students){
-  students.push(classAv(students));
-
   var height = 700;
   var width  = 700;
   var margin ={top:50,bot:50,left:40,right:40};//here
@@ -161,23 +211,28 @@ function makeChart(students){
     .attr("d",lineMaker(daters))
     .attr("stroke","blue")
     .attr("stroke-width",1)
-    .attr("fill","orange")
+    .attr("fill","lightblue")
     .attr("class","line");
 }
 
 function conjoin(days,scalex,scaley){
   var lis=[];
+  lis.push({
+    x: scalex(0),
+    y: scaley(days[40])
+  });
   days.forEach(function(d,i){
     lis.push({
       x:scalex(i),
       y:scaley(d)
     });
   });
-  console.log(lis);
+
   return lis;
 }
 
-function update(){
+function update(mode){
+  console.log("called");
   var height = 700;
   var width  = 700;
   var margin ={top:50,bot:50,left:40,right:40};//here
@@ -191,9 +246,26 @@ function update(){
   var lineMaker = d3.line()
                     .x(function(d){return d.x;})
                     .y(function(d){return d.y;});
+  if(mode){
+    if(svg.nodes()[0].id!=22){
+      var change=1;
+    }
+    else{
+      var change=0;
+    }
+  }
+  else{
+    if(svg.nodes()[0].id!=0){
+      var change=-1;
+    }
+    else{
+      var change=0;
+    }
+  }
   var x= svg.nodes()[0].id
+  svg.nodes()[0].id = parseInt(x,10)+change;
+  x= svg.nodes()[0].id
   var daters = conjoin(svg.data()[0][x].gradesByDay,xScale,yScale);
-  svg.nodes()[0].id = parseInt(x,10)+1
 
   svg.select("path.line")
      .transition()
