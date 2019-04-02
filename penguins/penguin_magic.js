@@ -103,7 +103,6 @@ function processGrades(student){
       days[score.day-1].push(reMadeGrade);
     });
   });
-  console.log(days);
   days.forEach(function(d,i){
     var avg;
     d.forEach(function(assignment){
@@ -157,6 +156,7 @@ function makeChart(students){
                    .y(function(d){return d.y;});
 
  var daters = conjoin(students[0].gradesByDay,xScale,yScale);
+
  svg.append("path")
     .attr("d",lineMaker(daters))
     .attr("stroke","blue")
@@ -173,6 +173,7 @@ function conjoin(days,scalex,scaley){
       y:scaley(d)
     });
   });
+  console.log(lis);
   return lis;
 }
 
