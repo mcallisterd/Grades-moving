@@ -3,11 +3,55 @@
   <head>
     <meta charset="utf-8">
     <title></title>
+    <style media="screen">
+      div{
+        float:right;
+        width:200px;
+      }
+      div.last{
+        float:none;
+        height:50px;
+        width:400px;
+      }
+      span.blue{
+        background-color: blue;
+      }
+      span.red{
+        background-color: red;
+      }
+      .key-dot{
+        display:inline-block;
+        height:10px;
+        width:10px;
+      }
+    </style>
   </head>
   <script src="https://d3js.org/d3.v5.js"></script>
   <script src="penguin_magic.js"></script>
   <body onload="go()">
+    <h3>Bookworm Penguin</h3>
   <svg>
   </svg>
+  <div class="first">
+
+  </div>
+  <div class="second">
+
+  </div>
+  <div class="third">
+
+  </div>
+  <div class="last">
+    <p><span class="key-dot red">
+    </span>
+    Running average
+    less than final average</p>
+
+    <p><span class="key-dot blue">
+    </span>
+ Running average more than
+ final average
+  </p>
+  </div>
   </body>
 </html>

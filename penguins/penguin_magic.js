@@ -1,3 +1,29 @@
+var dictionary = {
+"bookworm-penguin-300px.png": "Bookworm",
+"crafty-penguin-300px.png":"Crafty",
+"cyclist-penguin-300px.png":"Cyclist",
+"drunken-penguin-300px.png":"Drunken",
+"Easter-penguin-300px.png":"Easter",
+"ebook-penguin-300px.png":"Ebook",
+"Farmer-penguin-300px.png":"Farmer",
+"gentleman-penguin-300px.png":"Gentleman",
+"judo-penguin-300px.png":"Judo",
+"moana-penguin-300px.png":"Moana",
+"painter-penguin-300px.png":"Painter",
+"penguin-grill-300px.png":"Grill",
+"pharaoh-penguin-300px.png":"Pharaoh",
+"pilot-penguin-300px.png":"Pilot",
+"Pinga_corr-300px.png":"Pinga corr",
+"pixie-penguin-300px.png":"Pixie",
+"sailor-penguin-300px.png":"Sailor",
+"santa-penguin-300px.png":"Santa",
+"tauch-pinguin-ocal-300px.png":"Tauch",
+"tux-300px.png":"Tux",
+"valentine-penguin-ocal-300px.png":"Valentine ocal",
+"valentine-penguin.png":"Valentine",
+"wizard-penguin-300px.png":"Wizard"
+}
+
 function makeStudent(avgArray, name){
   var total=0;
   avgArray.forEach(function(d){total+=d;})
@@ -86,46 +112,65 @@ function go(){
   });
 }
 
-function makeDivs(students){
-  var dictionary = {
-"bookworm-penguin-300px.png": "Bookworm",
-"crafty-penguin-300px.png":"Crafty",
-"cyclist-penguin-300px.png":"Cyclist",
-"drunken-penguin-300px.png":"Drunken",
-"Easter-penguin-300px.png":"Easter",
-"ebook-penguin-300px.png":"Ebook",
-"Farmer-penguin-300px.png":"Farmer",
-"gentleman-penguin-300px.png":"Gentleman",
-"judo-penguin-300px.png":"Judo",
-"moana-penguin-300px.png":"Moana",
-"painter-penguin-300px.png":"Painter",
-"penguin-grill-300px.png":"Grill",
-"pharaoh-penguin-300px.png":"Pharaoh",
-"pilot-penguin-300px.png":"Pilot",
-"Pinga_corr-300px.png":"Pinga corr",
-"pixie-penguin-300px.png":"Pixie",
-"sailor-penguin-300px.png":"Sailor",
-"santa-penguin-300px.png":"Santa",
-"tauch-pinguin-ocal-300px.png":"Tauch",
-"tux-300px.png":"Tux",
-"valentine-penguin-ocal-300px.png":"Valentine ocal",
-"valentine-penguin.png":"Valentine",
-"wizard-penguin-300px.png":"Wizard"
+function divideInThree(students){
+  var array=[[],[],[]]
+  students.forEach(function(d,i){
+    array[Math.floor(i/8)].push(d);
+  });
+  return array;
 }
 
-  d3.select("body")
+function makeDivs(students){
+
+var divided = divideInThree(students);
+var a=divided[0];
+var b=divided[1];
+var c=divided[2];
+
+d3.select("div.first")
+  .selectAll("div")
+  .data(a)
+  .enter()
+  .append("div")
+  .on("click",function(d,i){
+    update(i);
+  })
+  .text(function(d){
+    return dictionary[d.picture]+" Penguin";
+  })
+  .append("img")
+  .attr("src",function(d){
+    return d.picture;
+  })
+  .attr("width","50px")
+  .attr("height","50px");
+
+d3.select("div.second")
+  .selectAll("div")
+  .data(b)
+  .enter()
+  .append("div")
+  .on("click",function(d,i){
+    update(i+a.length);
+  })
+  .text(function(d){
+    return dictionary[d.picture]+" Penguin";
+  })
+  .append("img")
+  .attr("src",function(d){
+    return d.picture;
+  })
+  .attr("width","50px")
+  .attr("height","50px");
+
+  d3.select("div.third")
     .selectAll("div")
-    .data(students)
+    .data(c)
     .enter()
     .append("div")
     .on("click",function(d,i){
-      update(i);
+      update(i+a.length+b.length);
     })
-    .style("float","right")
-    .attr("class",function(d,i){
-      return i%6;
-    })
-    .style("clear","right")
     .text(function(d){
       return dictionary[d.picture]+" Penguin";
     })
@@ -135,6 +180,9 @@ function makeDivs(students){
     })
     .attr("width","50px")
     .attr("height","50px");
+
+
+
 }
 
 function processGrades(student){
@@ -205,34 +253,96 @@ function makeChart(students){
                    .x(function(d){return d.x;})
                    .y(function(d){return d.y;});
 
- var daters = conjoin(students[0].gradesByDay,xScale,yScale);
+ var data = conjoin(students[0].gradesByDay,xScale,yScale);
 
  svg.append("path")
-    .attr("d",lineMaker(daters))
+    .attr("d",lineMaker(data[0]))
     .attr("stroke","blue")
     .attr("stroke-width",1)
-    .attr("fill","lightblue")
-    .attr("class","line");
+    .attr("fill", "lightblue")
+    .attr("class","line")
+    .attr("id","above");
+ svg.append("path")
+    .attr("stroke","orange")
+    .attr("d",lineMaker(data[1]))
+    .attr("stroke-width",1)
+    .attr("fill", "red")
+    .attr("class","line")
+    .attr("id","below");
 }
 
 function conjoin(days,scalex,scaley){
-  var lis=[];
-  lis.push({
+  var above=[];
+  var below=[]
+
+  var line=scaley(days[40]);
+  var first = {
     x: scalex(0),
-    y: scaley(days[40])
-  });
+    y:line
+  };
+  var last = {
+    x:scalex(40),
+    y:line
+  };
+  above.push(first);
+  below.push(first);
+  var place=true;
+
   days.forEach(function(d,i){
-    lis.push({
+    var point={
       x:scalex(i),
       y:scaley(d)
-    });
+    };
+    if(scaley(d)<=line){
+      if(!place && i!=0){
+        var lastd=days[i-1];
+        var last = {
+          x:scalex(i-1),
+          y:scaley(lastd)
+        }
+        var cross = findIntersection(line,last,point);
+        below.push(cross);
+        above.push(cross);
+      }
+      above.push(point)
+      place=true;
+    }
+    else{
+      if(place && i!=0){
+        var lastd=days[i-1];
+        var last = {
+          x:scalex(i-1),
+          y:scaley(lastd)
+        }
+        var cross = findIntersection(line,last,point);
+        below.push(cross);
+        above.push(cross);
+      }
+      below.push(point);
+      place=false;
+    }
   });
+  above.push(last);
+  below.push(last);
+  return [above,below];
+}
 
-  return lis;
+function findIntersection(lineY,last,point){
+  var y1=point.y;
+  var y2=last.y;
+  var x1=point.x;
+  var x2=last.x;
+
+  var m = (y1-y2)/(x1-x2);
+  var b= y1-m*x1;
+  var lineX = (lineY-b)/m;
+  return {
+    x:lineX,
+    y:lineY
+  };
 }
 
 function update(mode){
-  console.log("called");
   var height = 700;
   var width  = 700;
   var margin ={top:50,bot:50,left:40,right:40};//here
@@ -246,28 +356,19 @@ function update(mode){
   var lineMaker = d3.line()
                     .x(function(d){return d.x;})
                     .y(function(d){return d.y;});
-  if(mode){
-    if(svg.nodes()[0].id!=22){
-      var change=1;
-    }
-    else{
-      var change=0;
-    }
-  }
-  else{
-    if(svg.nodes()[0].id!=0){
-      var change=-1;
-    }
-    else{
-      var change=0;
-    }
-  }
-  var x= svg.nodes()[0].id
-  svg.nodes()[0].id = parseInt(x,10)+change;
-  x= svg.nodes()[0].id
-  var daters = conjoin(svg.data()[0][x].gradesByDay,xScale,yScale);
+  if(mode>-1 && mode<23){
+    svg.nodes()[0].id = parseInt(mode,10);
+    var x= svg.nodes()[0].id
+    var data = conjoin(svg.data()[0][x].gradesByDay,xScale,yScale);
+    d3.select("h3")
+      .text(dictionary[svg.data()[0][x].picture]+" Penguin");
 
-  svg.select("path.line")
-     .transition()
-     .attr("d", lineMaker(daters));
+    svg.select("path#above")
+       .transition()
+       .attr("d", lineMaker(data[0]));
+    svg.select("path#below")
+       .transition()
+       .attr("d",lineMaker(data[1]));
+  }
+
 }
