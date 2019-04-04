@@ -8,11 +8,6 @@
         float:right;
         width:200px;
       }
-      div.last{
-        float:none;
-        height:50px;
-        width:400px;
-      }
       span.blue{
         background-color: blue;
       }
@@ -39,9 +34,14 @@
 
   </div>
   <div class="third">
-
   </div>
   <div class="last">
+    <button type="button" onclick="update(-1)">Zoom Y</button>
+    <p>X Zoom input boxes:</p> <p>Start Range</p>
+    <input type="text" id="start">
+    <p>End Range</p>
+    <input type="text" id="end">
+    <button type="button" onclick="update(24)">Submit Range</button>
     <p><span class="key-dot red">
     </span>
     Running average

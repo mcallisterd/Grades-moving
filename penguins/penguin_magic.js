@@ -228,7 +228,7 @@ function makeChart(students){
   var svg = d3.select('svg')
               .attr("height",height)
               .attr('width',width)
-              .attr("id",0)
+              .attr("id","0")
               .data([students]);
 
   var xScale = d3.scaleLinear()
@@ -243,9 +243,11 @@ function makeChart(students){
  var yAxis = d3.axisLeft()
                .scale(yScale);
  svg.append('g')
+    .classed("xAxis",true)
     .call(xAxis)
     .attr("transform","translate("+0+","+(height-margin.bot)+")");//here
  svg.append("g")
+    .classed("yAxis",true)
     .call(yAxis)
     .attr("transform","translate("+margin.left*2/3+","+(0)+")");//here
 
@@ -350,25 +352,79 @@ function update(mode){
   var xScale = d3.scaleLinear()
                  .domain([0,42])
                  .range([margin.left,width-margin.right]);//here
-  var yScale = d3.scaleLinear()
-                 .domain([0,100])
-                 .range([height-margin.top,margin.bot]);//here
-  var lineMaker = d3.line()
-                    .x(function(d){return d.x;})
-                    .y(function(d){return d.y;});
+   var lineMaker = d3.line()
+                     .x(function(d){return d.x;})
+                     .y(function(d){return d.y;});
   if(mode>-1 && mode<23){
+    var yScale = d3.scaleLinear()
+                   .domain([0,100])
+                   .range([height-margin.top,margin.bot]);//here
     svg.nodes()[0].id = parseInt(mode,10);
     var x= svg.nodes()[0].id
     var data = conjoin(svg.data()[0][x].gradesByDay,xScale,yScale);
     d3.select("h3")
       .text(dictionary[svg.data()[0][x].picture]+" Penguin");
 
-    svg.select("path#above")
-       .transition()
-       .attr("d", lineMaker(data[0]));
+    var yAxis = d3.axisLeft(yScale);
+    svg.select("g.yAxis").transition().call(yAxis);
+    svg.select("path#above").transition().attr("d", lineMaker(data[0]));
     svg.select("path#below")
        .transition()
        .attr("d",lineMaker(data[1]));
   }
+  else {
+    var x =  svg.nodes()[0].id
+    var data = svg.data()[0][x].gradesByDay;
+    var extremes = d3.extent(data);
+    var max = extremes[1]+2;
+    var min = extremes[0]-2;
 
+    var yScale = d3.scaleLinear()
+                   .domain([min,max])
+                   .range([height-margin.top,margin.bot]);
+    if(mode==24){
+      var startRange = document.getElementById("start").value;
+      var endRange = document.getElementById("end").value;
+      startRange = parseInt(startRange,10);
+      endRange = parseInt(endRange,10);
+      xScale = d3.scaleLinear()
+                 .domain([startRange-2,2+endRange])
+                 .range([margin.left,width-margin.right]);
+    }
+    var xAxis = d3.axisBottom(xScale);
+    var yAxis = d3.axisLeft(yScale);
+
+    var updatedData = conjoin(data,xScale,yScale);
+    var above = updatedData[0];
+    var below = updatedData[1];
+
+    if(mode==24){
+      var above = fix(above,xScale(endRange),xScale(startRange),xScale);
+      var below = fix(below,xScale(endRange),xScale(startRange),xScale);
+    }
+
+    svg.select("g.xAxis").transition().call(xAxis);
+    svg.select("g.yAxis").transition().call(yAxis);
+    svg.select("path#above").transition().attr("d",lineMaker(above));
+    svg.select("path#below").transition().attr("d",lineMaker(below));
+  }
+}
+
+function fix(data,max,min,scalex){
+  var final = [];
+  var last = data[0].y;
+  final.push({
+    x:min,
+    y:last
+  })
+  data.forEach(function(d,i){
+    if(d.x<max && d.x>min){
+      final.push(d);
+    }
+  })
+  final.push({
+    x:max,
+    y:last
+  })
+  return final;
 }
